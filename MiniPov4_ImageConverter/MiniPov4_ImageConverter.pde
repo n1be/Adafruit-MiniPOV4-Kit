@@ -31,7 +31,7 @@ Preferences prefs;
 boolean cp5_isReady = false;
 PImage img1, img2;
 int imgW;
-boolean need_redraw = false;
+int mywidth, myheight;
 
 void setup()
 {
@@ -46,8 +46,8 @@ void setup()
   } 
 
   size(800, 190);
-  if (frame != null) {
-    frame.setResizable(true);
+  if (surface != null) {
+    surface.setResizable(true);
   }
   
   background(0, 0, 0);
@@ -91,26 +91,17 @@ void setup()
   
   // this version of controlP5 seems to call the events when the buttons are created, so I have a flag here to prevent that
   cp5_isReady = true;
-  
-  // resizing the window seems to erase the image, so we detect this event and redraw later 
-  frame.addComponentListener(new ComponentAdapter()
-  {
-    public void componentResized(ComponentEvent e)
-    {
-      if(e.getSource() == frame) {
-        need_redraw = true;
-      }
-    }
-  }); 
 }
 
 void draw()
 {
-  if (need_redraw) {
-    // resizing the window seems to erase the image, so we detect this event and redraw later
+  if ((mywidth != width) || (myheight != height)) {
+    // resizing the window seems to erase the image, so we detect this event and redraw
+    println(" window changed to w: "+width+" h: "+height);
+    mywidth = width;
+    myheight = height;
     if (img1 != null) image(img1, 10 + 120 + 10, 10);
     if (img2 != null) image(img2, 10 + 120 + 10, 10 + 80 + 10);
-    need_redraw = false;
   }
 }
 
@@ -198,11 +189,14 @@ public void openImg(int val)
   } catch (Exception e) { 
     e.printStackTrace();
   }
-  
-  fc.addChoosableFileFilter(new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes()));
+
+  javax.swing.filechooser.FileFilter filter =
+    new FileNameExtensionFilter("Image Files", ImageIO.getReaderFileSuffixes());
+  fc.addChoosableFileFilter(filter);
+  fc.setFileFilter(filter);
   println("ChoosableFilter");
   
-  if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+  if (fc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
   {
       println("Approved");
     String fp = fc.getSelectedFile().getPath();
@@ -308,7 +302,7 @@ public void saveBin(int val)
     e.printStackTrace();
   }
   
-  if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION)
+  if (fc.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
   {
     String fp = fc.getSelectedFile().getPath();
     println("file: " + fp);
@@ -332,7 +326,7 @@ public void openBin(int val)
     e.printStackTrace();
   }
   
-  if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+  if (fc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
   {
     String fp = fc.getSelectedFile().getPath();
     println("file: " + fp);
@@ -383,8 +377,14 @@ public void download(int val)
     return;
   }
   
-  print("current dir:"); println(sketchPath(""));
-  if (saveToBin("temp.bin"))
+  File f;
+  try {
+    f = File.createTempFile("temp-",".bin");
+  } catch (Exception e) {
+    println("Exception while creating temp file: " + e.getMessage());
+    return;
+  }
+  if (saveToBin(f.getAbsolutePath()))
   {
    String os=System.getProperty("os.name");
    String avrdude = sketchPath("")+"avrdude";
@@ -399,7 +399,8 @@ public void download(int val)
    }
    println(os);
     // use the VUsbTinyBoot bootloader, for ATmega328P, no fuse safemode, no auto-erase, no progress bar, write the temporary file to eeprom
-    String[] cmd = { avrdude, "-C"+sketchPath("")+"avrdude.conf", "-cusbtiny", "-pm328p", "-s", "-D", "-q", "-q", "-Ueeprom:w:temp.bin:r" };
+    String[] cmd = { avrdude, "-C"+sketchPath("avrdude.conf"), "-cusbtiny",
+      "-pm328p", "-s", "-D", "-q", "-q", "-Ueeprom:w:"+f.getAbsolutePath()+":r" };
     print("shell:");
     for (int i = 0; i < cmd.length; i++) print(" " + cmd[i]);
     println();
@@ -430,7 +431,6 @@ public void download(int val)
     }
     
     try {
-      File f = new File("temp.bin");
       if (f.delete()) {
         println("temp.bin deleted");
       }
