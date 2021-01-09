@@ -42,7 +42,7 @@
         cd ~/Downloads/pov
         wget -nv https://cdn-learn.adafruit.com/downloads/pdf/minipov4-diy-full-color-persistence-of-vision-light-painting-kit.pdf
         wget -nv https://github.com/sojamo/controlp5/releases/download/v2.2.5/controlP5-2.2.5.zip
-        wget -nv -O MiniPOV4.zip https://github.com/halfdane/Adafruit-MiniPOV4-Kit/archive/master.zip
+        wget -nv -O MiniPOV4.zip https://github.com/n1be/Adafruit-MiniPOV4-Kit/archive/master.zip
 
 ## Install the controlP5 library
 
