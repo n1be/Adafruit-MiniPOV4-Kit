@@ -1,5 +1,5 @@
-MiniPOV4-Kit with Linux support
-===============================
+MiniPOV4-Kit with Linux & Raspberry Pi support
+==============================================
 
 Files, Firmware and Software for the MiniPOV4 color light-painting kit
 Pick up a kit here: https://www.adafruit.com/products/1776
@@ -20,3 +20,5 @@ Learn to solder by building this easy kit. About 30 components are soldered onto
 
 
 Now with linux support: install your distribution's version of avrdude and the MiniPov4_ImageConverter should work.
+
+Raspberry Pi is now supported.  This required minor code changes to work with Processing 3+.  Refer to the ```Raspberry_Pi.md``` file in this directory for details.

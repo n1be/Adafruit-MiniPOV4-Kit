@@ -1,0 +1,2 @@
+# allow any user to access the POV programmer device
+ATTRS{manufacturer}=="Adafruit", ATTRS{product}=="USBtiny", MODE="666"
